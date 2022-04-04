@@ -26,9 +26,9 @@ header ethernet_t {
 header ipv4_t {
     bit<4>    version;
     bit<4>    ihl;
-    # tos(8)->tos(6)+ecn(2)
-    bit<6>    tos;
-    bit<2>    ecn; 
+    //tos(8)->tos(6)+ecn(2)
+    bit<6>    diffserv;
+    bit<2>    ecn;
     bit<16>   totalLen;
     bit<16>   identification;
     bit<3>    flags;
@@ -136,9 +136,9 @@ control MyEgress(inout headers hdr,
          *   - compare standard_metadata.enq_qdepth with threshold
          *     and set hdr.ipv4.ecn to 3 if larger
          */
-        if(hdr.ipv4.ecn == 1 || hdr.ipv4.ecn == 2) {#ECN为1或2
-            if(standard_metadata.enq_qdepth >= ECN_THRESHOLD) #二者比较，前者较大则将hdr.ipv4.ecn设置为3#
-                hdr.ipv4.ecn == 3;
+        if(hdr.ipv4.ecn == 1 || hdr.ipv4.ecn == 2) {//ECN为1或2
+            if(standard_metadata.enq_qdepth >= ECN_THRESHOLD) {//二者比较，前者较大则将hdr.ipv4.ecn设置为3
+                hdr.ipv4.ecn = 3;
             }
         }
     }
@@ -155,7 +155,7 @@ control MyComputeChecksum(inout headers hdr, inout metadata meta) {
             hdr.ipv4.isValid(),
             { hdr.ipv4.version,
               hdr.ipv4.ihl,
-              #hdr.ipv4.tos->hdr.ipv4.diffserv+hdr.ipv4.ecn
+              //hdr.ipv4.tos->hdr.ipv4.diffserv+hdr.ipv4.ecn
               hdr.ipv4.diffserv,
               hdr.ipv4.ecn,
               hdr.ipv4.totalLen,
